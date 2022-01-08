@@ -1,41 +1,48 @@
 package hu.jcp.androidchallange.view.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.AsyncListDiffer
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import hu.jcp.androidchallange.data.response.Result
 import hu.jcp.androidchallange.databinding.MovieItemBinding
-import hu.jcp.androidchallange.model.Movie
-import hu.jcp.androidchallange.util.ImageLoader
-import javax.inject.Inject
 
-class MovieAdapter @Inject constructor() : RecyclerView.Adapter<MovieAdapter.ViewHolder>() {
+class MovieAdapter : RecyclerView.Adapter<MovieAdapter.MovieViewHolder>() {
 
-    private var movies : List<Movie> = ArrayList()
+    inner class MovieViewHolder(val binding: MovieItemBinding) : RecyclerView.ViewHolder(binding.root)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
-        ViewHolder(
-            MovieItemBinding.inflate(
-                LayoutInflater.from(parent.context),
-                parent,
-                false
-            )
-        )
+    private val diffCallback = object : DiffUtil.ItemCallback<Result>() {
+        override fun areItemsTheSame(oldItem: Result, newItem: Result): Boolean {
+            return oldItem.id == newItem.id
+        }
 
-    override fun onBindViewHolder(holder: MovieAdapter.ViewHolder, position: Int) =
-        holder.bind(movies[position])
+        override fun areContentsTheSame(oldItem: Result, newItem: Result): Boolean {
+            return oldItem == newItem
+        }
+    }
 
-    override fun getItemCount(): Int = movies.size
+    private val differ = AsyncListDiffer(this, diffCallback)
+    var movieList: List<Result>
+        get() = differ.currentList
+        set(value) { differ.submitList(value) }
 
-    inner class ViewHolder(private val binding: MovieItemBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-        fun bind(movie: Movie) {
-            binding.apply {
-                movie.also { (title, vote, poster) ->
-                    movieTitle.text = title
-                    movieVote.text = vote
-                }
-                movie.poster?.let { ImageLoader.loadImage(itemView.context, it, moviePoster) }
-            }
+    override fun getItemCount() = movieList.size
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
+        return MovieViewHolder(MovieItemBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        ))
+    }
+
+    override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
+        holder.binding.apply {
+            val movie = movieList[position]
+            movieTitle.text = movie.title
+            movieVote.text = movie.vote_average.toString()
         }
     }
 }

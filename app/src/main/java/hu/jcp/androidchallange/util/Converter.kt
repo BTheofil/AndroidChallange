@@ -1,4 +1,4 @@
-package hu.jcp.androidchallange.viewModel
+package hu.jcp.androidchallange.util
 import hu.jcp.androidchallange.data.response.Result
 import hu.jcp.androidchallange.model.Movie
 

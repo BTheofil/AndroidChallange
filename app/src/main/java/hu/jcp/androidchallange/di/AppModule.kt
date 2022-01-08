@@ -4,9 +4,13 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import hu.jcp.androidchallange.repository.MovieRepository
-import hu.jcp.androidchallange.data.MovieApi
+import hu.jcp.androidchallange.BuildConfig
+import hu.jcp.androidchallange.data.MovieApiHelper
+import hu.jcp.androidchallange.data.MovieApiHelperImpl
+import hu.jcp.androidchallange.data.MovieApiService
 import hu.jcp.androidchallange.util.Constant.BASE_URL
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
@@ -15,19 +19,37 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class AppModule {
 
-    @Singleton
     @Provides
-    fun provideMovieRepository(
-        api: MovieApi
-    ) = MovieRepository(api)
+    fun provideBaseUrl() = BASE_URL
 
     @Singleton
     @Provides
-    fun provideMovieApi(): MovieApi {
-        return Retrofit.Builder()
-            .addConverterFactory(GsonConverterFactory.create())
-            .baseUrl(BASE_URL)
+    fun provideOkHttpClient() = if (BuildConfig.DEBUG){
+        val loggingInterceptor = HttpLoggingInterceptor()
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
+        OkHttpClient.Builder()
+            .addInterceptor(loggingInterceptor)
             .build()
-            .create(MovieApi::class.java)
+    }else{
+        OkHttpClient
+            .Builder()
+            .build()
     }
+
+    @Singleton
+    @Provides
+    fun provideRetrofit(okHttpClient: OkHttpClient, BASE_URL:String): Retrofit = Retrofit.Builder()
+        .addConverterFactory(GsonConverterFactory.create())
+        .baseUrl(BASE_URL)
+        .client(okHttpClient)
+        .build()
+
+    @Provides
+    @Singleton
+    fun provideApiService(retrofit: Retrofit) = retrofit.create(MovieApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideApiHelper(apiHelper: MovieApiHelperImpl): MovieApiHelper = apiHelper
+
 }
