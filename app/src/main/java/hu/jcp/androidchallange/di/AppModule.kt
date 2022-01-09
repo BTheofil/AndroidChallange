@@ -1,5 +1,7 @@
 package hu.jcp.androidchallange.di
 
+import android.app.Application
+import androidx.room.Room
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -8,6 +10,9 @@ import hu.jcp.androidchallange.BuildConfig
 import hu.jcp.androidchallange.data.MovieApiHelper
 import hu.jcp.androidchallange.data.MovieApiHelperImpl
 import hu.jcp.androidchallange.data.MovieApiService
+import hu.jcp.androidchallange.db.data.MovieDbDatabase
+import hu.jcp.androidchallange.db.data.MovieDbRepository
+import hu.jcp.androidchallange.db.data.MovieDbRepositoryImpl
 import hu.jcp.androidchallange.util.Constant.BASE_URL
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -51,5 +56,22 @@ class AppModule {
     @Provides
     @Singleton
     fun provideApiHelper(apiHelper: MovieApiHelperImpl): MovieApiHelper = apiHelper
+
+
+    @Provides
+    @Singleton
+    fun provideTodoDatabase(app: Application): MovieDbDatabase {
+        return Room.databaseBuilder(
+            app,
+            MovieDbDatabase::class.java,
+            "movieDb_db"
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideTodoRepository(db: MovieDbDatabase): MovieDbRepository {
+        return MovieDbRepositoryImpl(db.dao)
+    }
 
 }

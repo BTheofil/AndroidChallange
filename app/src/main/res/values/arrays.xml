@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="sort">
+        <item>"The hot stuff! Show me the most popular movies!"</item>
+        <item>"Only the best! Show me the top rated movies!"</item>
+        <item>"My faves! Show me my favourites movies!"</item>
+    </string-array>
+</resources>
