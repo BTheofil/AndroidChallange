@@ -16,11 +16,7 @@
     </fragment>
     <fragment
         android:id="@+id/movieDetailsFragment"
-        android:name="hu.jcp.androidchallange.MovieDetailsFragment"
+        android:name="hu.jcp.androidchallange.view.MovieDetailsFragment"
         android:label="fragment_movie_details"
-        tools:layout="@layout/fragment_movie_details" >
-        <action
-            android:id="@+id/action_movieDetailsFragment_to_movieListFragment"
-            app:destination="@id/movieListFragment" />
-    </fragment>
+        tools:layout="@layout/fragment_movie_details" />
 </navigation>

@@ -8,8 +8,9 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import hu.jcp.androidchallange.data.response.Result
 import hu.jcp.androidchallange.databinding.MovieItemBinding
+import hu.jcp.androidchallange.view.adapter.listener.AdapterListener
 
-class MovieAdapter : RecyclerView.Adapter<MovieAdapter.MovieViewHolder>() {
+class MovieAdapter(private var adapterListener: AdapterListener) : RecyclerView.Adapter<MovieAdapter.MovieViewHolder>() {
 
     inner class MovieViewHolder(val binding: MovieItemBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -43,6 +44,10 @@ class MovieAdapter : RecyclerView.Adapter<MovieAdapter.MovieViewHolder>() {
             val movie = movieList[position]
             movieTitle.text = movie.title
             movieVote.text = movie.vote_average.toString()
+        }
+
+        holder.itemView.setOnClickListener {
+            adapterListener.onClickItem(movieList[position])
         }
     }
 }

@@ -6,40 +6,53 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import hu.jcp.androidchallange.R
+import hu.jcp.androidchallange.data.response.Result
 import hu.jcp.androidchallange.databinding.FragmentMovieListBinding
 import hu.jcp.androidchallange.util.Status
 import hu.jcp.androidchallange.view.adapter.MovieAdapter
+import hu.jcp.androidchallange.view.adapter.listener.AdapterListener
 import hu.jcp.androidchallange.viewModel.MoveListViewModel
 
 @AndroidEntryPoint
-class MovieListFragment : Fragment() {
+class MovieListFragment : Fragment(), AdapterListener {
 
-    private lateinit var binding: FragmentMovieListBinding
+    var _binding: FragmentMovieListBinding ? = null
+    private val binding get() = _binding!!
     private lateinit var movieAdapter: MovieAdapter
+    private lateinit var navController: NavController
     private val movieViewModel : MoveListViewModel by viewModels()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentMovieListBinding.inflate(layoutInflater)
-        return inflater.inflate(R.layout.fragment_movie_list, container, false)
+        _binding = FragmentMovieListBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        navController = Navigation.findNavController(requireActivity(), R.id.fragmentContainerView)
         initRecyclerView()
         setUpObservers()
+    }
+
+    override fun onClickItem(movie: Result) {
+       val bundle = bundleOf("movie" to movie)
+        navController.navigate(R.id.action_movieListFragment_to_movieDetailsFragment, bundle)
     }
 
     private fun initRecyclerView() {
         binding.movieListRV.apply {
             layoutManager = GridLayoutManager(context, 2)
-            movieAdapter = MovieAdapter()
+            movieAdapter = MovieAdapter(this@MovieListFragment)
             adapter = movieAdapter
         }
     }
